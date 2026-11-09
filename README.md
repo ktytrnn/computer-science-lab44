@@ -7,9 +7,9 @@
 В SandboxSQL загружена SQLite-база. Выполнена проверка числа строк во всех шести таблицах.
 
 **Количество записей**
-...sql
+```sql
 SELECT 'groups' AS table_name, COUNT(*) AS rows_count FROM groups UNION ALL SELECT 'students', COUNT(*) FROM students UNION ALL SELECT 'teachers', COUNT(*) FROM teachers UNION ALL SELECT 'courses', COUNT(*) FROM courses UNION ALL SELECT 'enrollments', COUNT(*) FROM enrollments UNION ALL SELECT 'results', COUNT(*) FROM results;
-...
+```
 **Результат:**
 ![](./фото/01.jpg)
 
@@ -30,16 +30,16 @@ SELECT 'groups' AS table_name, COUNT(*) AS rows_count FROM groups UNION ALL SELE
 **Связи:** `students.group_id→groups.id`; `courses.teacher_id→teachers.id`; `enrollments.student_id→students.id`; `enrollments.course_id→courses.id`; `results.enrollment_id→enrollments.id`. В каждой таблице id — первичный ключ.
 
 **Просмотр данных.** Просмотр первых пяти учеников.
-...sql
+```sql
 SELECT * FROM students LIMIT 5;
-...
+```
 **Результат:**
 ![](./фото/02.jpg)
 
 **Структура таблицы.** Просмотр полей и типов данных таблицы students.
-...sql
+```sql
 PRAGMA table_info(students);
-...
+```
 **Результат:**
 ![](./фото/03.jpg)
 
@@ -70,7 +70,7 @@ PRAGMA table_info(students);
 ## Шаг 3. Фильтрация и сортировка.
 
 1. Вывод курсов продолжительностью не менее 60 часов. 
-...sql
+```sql
 SELECT
     id,
     course_name,
@@ -78,12 +78,12 @@ SELECT
 FROM courses
 WHERE hours >= 60
 ORDER BY hours DESC, course_name ASC;
-...
+```
 Результат:
 ![](./фото/04.jpg)
 
 2. Список студентов, поступивших в 2025 году.
-...sql
+```sql
 SELECT
     id,
     full_name,
@@ -92,7 +92,7 @@ FROM students
 WHERE admission_year = 2025
 ORDER BY full_name ASC
 LIMIT 10;
-...
+```
 Результат:
 ![](./фото/05.jpg)
 
@@ -101,28 +101,28 @@ LIMIT 10;
 ## Шаг 4. Агрегирование и группировка.
 
 1. Подсчет общего количества записей на курсы.
-...sql
+```sql
 SELECT
     COUNT(*) AS total_enrollments
 FROM enrollments;
-...
+```
 Результат:
 ![](./фото/06.jpg)
 
 2. Расчет минимальной, максимальной и средней продолжительности курсов.
-...sql
+```sql
 SELECT
     MIN(hours) AS min_hours,
     MAX(hours) AS max_hours,
     ROUND(AVG(hours), 2) AS avg_hours,
     SUM(hours) AS total_hours
 FROM courses;
-...
+```
 Результат:
 ![](./фото/07.jpg)
 
 3. Подсчет количества записей по статусам.
-...sql
+```sql
 SELECT
     status,
     COUNT(*) AS enrollments_count
@@ -130,7 +130,7 @@ FROM enrollments
 GROUP BY status
 HAVING COUNT(*) > 100
 ORDER BY enrollments_count DESC;
-...
+```
 Результат:
 ![](./фото/08.jpg)
 
@@ -139,7 +139,7 @@ ORDER BY enrollments_count DESC;
 ## Шаг 5. Объединение связанных таблиц.
 
 1. Вывод списка 10 студентов и название групп, в которых они записаны.
-...sql
+```sql
 SELECT
     s.id,
     s.full_name,
@@ -149,12 +149,12 @@ INNER JOIN groups AS g
     ON g.id = s.group_id
 ORDER BY s.id
 LIMIT 10;
-...
+```
 Результат:
 ![](./фото/09.jpg)
 
 2. Вывести 10 курсов и ФИО преподавателей.
-...sql
+```sql
 SELECT
     c.id,
     c.course_name,
@@ -164,12 +164,12 @@ INNER JOIN teachers AS t
     ON t.id = c.teacher_id
 ORDER BY c.id
 LIMIT 10;
-...
+```
 Результат:
 ![](./фото/10.jpg)
 
 3. Вывести всех преподавателей и их курсы.
-...sql
+```sql
 SELECT
     t.id,
     t.full_name,
@@ -178,7 +178,7 @@ FROM teachers AS t
 LEFT JOIN courses AS c
     ON t.id = c.teacher_id
 ORDER BY t.id;
-...
+```
 Результат:
 ![](./фото/11.jpg)
 
@@ -187,26 +187,26 @@ ORDER BY t.id;
 ## Шаг 6. Проверка корректности.
 
 1. Проверить корректность оценок.
-...sql
+```sql
 SELECT
     COUNT(*) AS invalid_scores
 FROM results
 WHERE score < 0
    OR score > 100
    OR score IS NULL;
-...
+```
 Результат:
 ![](./фото/12.jpg)
 
 2. Проверка связей между таблицами.
-...sql
+```sql
 SELECT
     COUNT(*) AS orphan_results
 FROM results r
 LEFT JOIN enrollments e
     ON r.enrollment_id = e.id
 WHERE e.id IS NULL;
-...
+```
 Результат:
 ![](./фото/13.jpg)
 
@@ -221,7 +221,7 @@ WHERE e.id IS NULL;
 Для анализа показатели: `INNER JOIN`, `GROUP BY`, `COUNT`, `ORDER BY`, `ROUND`, `AVG`
 
 **Подсчет количества итоговых оценок по всем курсам.**
-...sql
+```sql
 SELECT
     c.course_name,
     COUNT(r.id) AS grade_count
@@ -232,12 +232,12 @@ INNER JOIN results r
     ON e.id = r.enrollment_id
 GROUP BY c.id, c.course_name
 ORDER BY grade_count DESC;
-...
+```
 Результат:
 ![](./фото/14.jpg)
 
 **Расчет средней оценки по каждому курсу.**
-...sql
+```sql
 SELECT
     c.course_name,
     COUNT(r.id) AS grade_count,
@@ -249,7 +249,7 @@ INNER JOIN results r
     ON e.id = r.enrollment_id
 GROUP BY c.id, c.course_name
 ORDER BY grade_count DESC;
-...
+```
 Результат:
 ![](./фото/15.jpg)
 
